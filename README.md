@@ -1,4 +1,4 @@
-CH9431 SPI CAN Driver
+ch9431 SPI CAN Driver
 ===========================
 This driver can only work with SPI CAN function in these WCH devices:
 CH9431
@@ -20,30 +20,31 @@ from other driver then modify it.
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "wch,ch9431";
-		reg = <1 0>;
-		spi-max-frequency = <2000000>;
-		interrupt-parent = <&gpio0>;
-		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
+		reg = <0x0>;
+		spi-max-frequency = <12000000>;
+		interrupt-gpio = <&gpio0 12 IRQ_TYPE_LEVEL_LOW>;
 	}
 	Notice that the irq request method cannot be supported in this way in some platforms.
 	You can contact us for other methods.
 
 Integrated into your system method2
 ---------------------------------------
-1. Please copy the driver file to the kernel directory:$kernel_src/drivers/net/ethernet
+1. Please copy the driver file to the kernel directory:$kernel_src/drivers/net/can/spi/
 
-2. Please add the followed txt into the kernel file:$kernel_src/drivers/net/ethernet/Kconfig
-config CH9431
-	tristate "CH9431 support"
-	depends on SPI
-	select SERIAL_CORE
-	help
-	  This selects support for ch9431 ethernet.
+2. Please add the followed txt into the kernel file:$kernel_src/drivers/net/can/spi/Kconfig
+config CAN_CH9431
+	tristate "WCH CH9431 SPI CAN controllers"
+	depends on CAN_DEV && SPI && HAS_DMA
+	---help---
+	  Driver for the WCH CH9431 SPI CAN
+	  controllers.
 	
-3. Add the follow define into the $kernel_src/drivers/net/ethernet/Makefile for compile the driver.
+3. Add the follow define into the $kernel_src/drivers/net/can/spi/Makefile for compile the driver.
 obj-$(CONFIG_SERIAL_CH9431) += ch9431.o
 
-4. Run the make menuconfig and select the ch9431 ethernet support at the driver/net/ethernet and save the config.
+4. Run the make menuconfig and select the ch9431 CAN support at the:
+Networking support-> CAN bus subsystem support -> CAN Device Drivers -> CAN SPI interfaces ->  WCH CH9431 SPI CAN controllers 
+and save the config.
 
 5. Define the spi0_board_info object on your board file similar the follow:
 static struct spi_board_info spi0_board_info[] __initdata = {
