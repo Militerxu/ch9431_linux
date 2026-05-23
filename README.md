@@ -1,52 +1,64 @@
-ch9431 SPI CAN Driver
-===========================
-This driver can only work with SPI CAN function in these WCH devices:
-CH9431
+# ch9431 SPI CAN 驱动
 
-Integrated into your system method1
----------------------------------------
-If you are using dts device tree to set up spi and driver, you can read this method, otherwise
-please refer to method2.
+该驱动仅适用于以下 WCH 设备中的 SPI CAN 功能：
 
-1. Please copy the driver file to the package directory which be used to add additional drivers.
+- CH9431
 
-2. Please add the relevant Makefile and Kconfig like other drivers, generally you can copy one
-from other driver then modify it.
+## 集成到系统的方法 1
 
-3. Run the make menuconfig and select the ch9431 can support at "modules" item.
+如果你使用 dts 设备树来配置 SPI 和驱动，可以参考此方法；否则请参考方法 2。
 
-4. Define the spi structure on your dts file similar the follow: 
-	spidev@1 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "wch,ch9431";
-		reg = <0x0>;
-		spi-max-frequency = <12000000>;
-		interrupt-gpio = <&gpio0 12 IRQ_TYPE_LEVEL_LOW>;
-	}
-	Notice that the irq request method cannot be supported in this way in some platforms.
-	You can contact us for other methods.
+1. 请将驱动文件复制到用于添加额外驱动的软件包目录中。
 
-Integrated into your system method2
----------------------------------------
-1. Please copy the driver file to the kernel directory:$kernel_src/drivers/net/can/spi/
+2. 请像其他驱动一样添加相应的 `Makefile` 和 `Kconfig`。通常可以从其他驱动复制一份，然后再进行修改。
 
-2. Please add the followed txt into the kernel file:$kernel_src/drivers/net/can/spi/Kconfig
+3. 运行 `make menuconfig`，并在 `"modules"` 项中选择 `ch9431 can support`。
+
+4. 在你的 dts 文件中定义类似如下的 SPI 结构：
+
+```dts
+spidev@1 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "wch,ch9431";
+	reg = <0x0>;
+	spi-max-frequency = <12000000>;
+	interrupt-gpio = <&gpio0 12 IRQ_TYPE_LEVEL_LOW>;
+}
+```
+
+请注意，在某些平台上，这种方式不支持 irq 请求方法。如需其他方法，可以联系我们。
+
+## 集成到系统的方法 2
+
+1. 请将驱动文件复制到内核目录：`$kernel_src/drivers/net/can/spi/`
+
+2. 请将以下文本添加到内核文件：`$kernel_src/drivers/net/can/spi/Kconfig`
+
+```text
 config CAN_CH9431
 	tristate "WCH CH9431 SPI CAN controllers"
 	depends on CAN_DEV && SPI && HAS_DMA
 	---help---
 	  Driver for the WCH CH9431 SPI CAN
 	  controllers.
-	
-3. Add the follow define into the $kernel_src/drivers/net/can/spi/Makefile for compile the driver.
+```
+
+3. 将以下定义添加到 `$kernel_src/drivers/net/can/spi/Makefile`，用于编译该驱动。
+
+```makefile
 obj-$(CONFIG_SERIAL_CH9431) += ch9431.o
+```
 
-4. Run the make menuconfig and select the ch9431 CAN support at the:
-Networking support-> CAN bus subsystem support -> CAN Device Drivers -> CAN SPI interfaces ->  WCH CH9431 SPI CAN controllers 
-and save the config.
+4. 运行 `make menuconfig`，并在以下位置选择 `ch9431 CAN support`，然后保存配置。
 
-5. Define the spi0_board_info object on your board file similar the follow:
+```text
+Networking support-> CAN bus subsystem support -> CAN Device Drivers -> CAN SPI interfaces ->  WCH CH9431 SPI CAN controllers
+```
+
+5. 在你的板级文件中定义类似如下的 `spi0_board_info` 对象：
+
+```c
 static struct spi_board_info spi0_board_info[] __initdata = {
 	{
 		.modalias = "wch,ch9431",
@@ -59,7 +71,8 @@ static struct spi_board_info spi0_board_info[] __initdata = {
 		.irq = IRQ_EINT(25),
 	}
 };
+```
 
-**Note**
+## 注意
 
-Any question, you can send feedback to mail: tech@wch.cn
+如有任何问题，可以发送反馈邮件至：tech@wch.cn
